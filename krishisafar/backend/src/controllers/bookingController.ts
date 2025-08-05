@@ -166,10 +166,10 @@ export const getHostBookings = async (req: AuthRequest, res: Response) => {
 export const getBookingById = async (req: AuthRequest, res: Response) => {
   try {
     const booking = await Booking.findById(req.params.id)
-      .populate('farmStay', 'name location photos pricePerNight host amenities')
       .populate('traveler', 'name phone email profilePhoto')
       .populate({
         path: 'farmStay',
+        select: 'name location photos pricePerNight host amenities',
         populate: {
           path: 'host',
           select: 'name phone email profilePhoto'
@@ -184,8 +184,8 @@ export const getBookingById = async (req: AuthRequest, res: Response) => {
     }
 
     // Check if user is authorized to view this booking
-    const isOwner = booking.traveler._id.toString() === req.user?.id;
-    const isHost = booking.farmStay.host._id.toString() === req.user?.id;
+    const isOwner = (booking.traveler as any)._id.toString() === req.user?.id;
+    const isHost = (booking.farmStay as any).host._id.toString() === req.user?.id;
     const isAdmin = req.user?.userType === 'admin';
 
     if (!isOwner && !isHost && !isAdmin) {
@@ -220,8 +220,8 @@ export const updateBookingStatus = async (req: AuthRequest, res: Response) => {
     }
 
     // Check authorization - only host can confirm/cancel, travelers can cancel
-    const isHost = booking.farmStay.host.toString() === req.user?.id;
-    const isTraveler = booking.traveler.toString() === req.user?.id;
+    const isHost = (booking.farmStay as any).host.toString() === req.user?.id;
+    const isTraveler = (booking.traveler as any).toString() === req.user?.id;
     const isAdmin = req.user?.userType === 'admin';
 
     if (!isHost && !isTraveler && !isAdmin) {

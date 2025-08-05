@@ -4,9 +4,8 @@ import User from '../models/User';
 import { AuthRequest } from '../middleware/auth';
 
 const generateToken = (id: string): string => {
-  return jwt.sign({ id }, process.env.JWT_SECRET!, {
-    expiresIn: process.env.JWT_EXPIRE || '7d'
-  });
+  const secret = process.env.JWT_SECRET as string;
+  return jwt.sign({ id }, secret, { expiresIn: '7d' } as any);
 };
 
 export const signup = async (req: Request, res: Response) => {
@@ -31,7 +30,7 @@ export const signup = async (req: Request, res: Response) => {
       userType: userType || 'traveler'
     });
 
-    const token = generateToken(user._id.toString());
+    const token = generateToken((user._id as any).toString());
 
     res.status(201).json({
       success: true,
@@ -75,7 +74,7 @@ export const login = async (req: Request, res: Response) => {
       });
     }
 
-    const token = generateToken(user._id.toString());
+    const token = generateToken((user._id as any).toString());
 
     res.json({
       success: true,
