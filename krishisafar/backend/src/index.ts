@@ -16,6 +16,7 @@ dotenv.config();
 
 // Initialize Express app
 const app = express();
+app.set('trust proxy', 1);
 
 // Connect to database
 connectDB();
@@ -57,7 +58,7 @@ app.use('/api/farmstays', farmStayRoutes);
 app.use('/api/bookings', bookingRoutes);
 
 // 404 handler
-app.use('*', (req: Request, res: Response) => {
+app.use((req: Request, res: Response) => {
   res.status(404).json({
     success: false,
     message: 'Route not found'
