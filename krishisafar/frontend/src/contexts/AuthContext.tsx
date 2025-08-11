@@ -107,9 +107,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const login = async (email: string, password: string) => {
     dispatch({ type: 'AUTH_START' });
     try {
+      const normalizedEmail = (email || '').trim().toLowerCase();
+      const normalizedPassword = (password || '').trim();
+
       const response = await axios.post(`${API_BASE_URL}/auth/login`, {
-        email,
-        password,
+        email: normalizedEmail,
+        password: normalizedPassword,
       });
 
       const { token, user } = response.data;
@@ -129,7 +132,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const signup = async (userData: any) => {
     dispatch({ type: 'AUTH_START' });
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/signup`, userData);
+      const normalized = {
+        ...userData,
+        email: (userData.email || '').trim().toLowerCase(),
+        password: (userData.password || '').trim(),
+      };
+
+      const response = await axios.post(`${API_BASE_URL}/auth/signup`, normalized);
 
       const { token, user } = response.data;
       

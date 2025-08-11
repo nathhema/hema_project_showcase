@@ -12,8 +12,17 @@ export const signup = async (req: Request, res: Response) => {
   try {
     const { name, email, password, phone, userType } = req.body;
 
+    // Normalize and validate input
+    const normalizedEmail = (email || '').toString().trim().toLowerCase();
+    if (!normalizedEmail || !password || !name) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name, email and password are required'
+      });
+    }
+
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: normalizedEmail });
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -24,7 +33,7 @@ export const signup = async (req: Request, res: Response) => {
     // Create new user
     const user = await User.create({
       name,
-      email,
+      email: normalizedEmail,
       password,
       phone,
       userType: userType || 'traveler'
@@ -56,8 +65,17 @@ export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
+    // Basic validation
+    const normalizedEmail = (email || '').toString().trim().toLowerCase();
+    if (!normalizedEmail || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email and password are required'
+      });
+    }
+
     // Find user and include password
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email: normalizedEmail }).select('+password');
     if (!user) {
       return res.status(401).json({
         success: false,
